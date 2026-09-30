@@ -3,10 +3,10 @@
 ## 1) Fazendo fork e abrindo o codespace
 
 1. Faça login no [GitHub](https://github.com).
-2. Acesse o repositório do professor: `https://github.com/fcintra5/vulcom-main-YYYY-S`.
+2. Acesse o repositório do professor: `https://github.com/fcintra5/vulcom-main-2026-2`.
 3. Clique em `Fork` no canto superior direito.
 4. Na página de criação do fork, mantenha os valores padrão e clique em `Create fork`.
-5. Confirme que a URL do seu fork ficou no formato `https://github.com/<SEU_USUARIO>/vulcom-main-YYYY-S`.
+5. Confirme que a URL do seu fork ficou no formato `https://github.com/<SEU_USUARIO>/vulcom-main-2026-2`.
 6. Clique em `Code` e, em seguida, na aba `Codespaces`.
 7. Clique em `Create codespace on main` para abrir o ambiente.
 8. Aguarde o ambiente ser provisionado. Na primeira vez, o VS Code _online_ será aberto no navegador.
