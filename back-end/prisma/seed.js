@@ -1,7 +1,9 @@
+
 import { faker } from '@faker-js/faker/locale/pt_BR'
 import { PrismaClient } from '@prisma/client'
+import argon2 from 'argon2'
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 const colors = [
   'AMARELO',
@@ -26,49 +28,59 @@ async function main() {
   })
 
   // Criar usuários
-  const users = [];
-  const numberOfUsers = 4;
+  const users = []
+  const numberOfUsers = 4
 
- // Cria o administrador somente se o e-mail ainda não existir
-  const user = await prisma.user.upsert({
+  // Gera o hash da senha do administrador
+  const adminPasswordHash = await argon2.hash('Vulcom@DSM')
+
+  // Cria ou atualiza o administrador
+  const admin = await prisma.user.upsert({
     where: {
       email: 'admin@vulcom.com.br'
     },
-    update: {},
+    update: {
+      password: adminPasswordHash
+    },
     create: {
       fullname: 'Administrador do Sistema',
       username: 'admin',
       email: 'admin@vulcom.com.br',
-      password: 'Vulcom@DSM',
+      password: adminPasswordHash,
       is_admin: true
     }
   })
 
-  users.push(user)
-  
+  users.push(admin)
+
+  // Criar usuários fictícios
   for (let i = 0; i < numberOfUsers; i++) {
+
+    // Gera um hash para a senha do usuário
+    const passwordHash = await argon2.hash('senha123')
+
     const user = await prisma.user.create({
       data: {
         fullname: faker.person.fullName(),
         username: faker.internet.username(),
         email: faker.internet.email(),
-        // OWASP Top 10:2025 A07 - Falhas de Autenticação: senha fraca e compartilhada entre contas.
-        password: 'senha123',
+        password: passwordHash,
         is_admin: i === 0,
       },
-    });
-    users.push(user);
+    })
+
+    users.push(user)
   }
 
   // Criar clientes
-  const customers = [];
-  const numberOfCustomers = 10;
-  
+  const customers = []
+  const numberOfCustomers = 10
+
   for (let i = 0; i < numberOfCustomers; i++) {
     const customer = await prisma.customer.create({
       data: {
         name: faker.person.fullName(),
-        ident_document: faker.helpers.replaceSymbols('###.###.###-##'), // CPF formatado
+        ident_document: faker.helpers.replaceSymbols('###.###.###-##'),
         birth_date: faker.date.birthdate({ min: 18, max: 65, mode: 'age' }),
         street_name: faker.location.street(),
         house_number: faker.location.buildingNumber(),
@@ -78,18 +90,19 @@ async function main() {
         phone: faker.phone.number('(##) 9#### ####'),
         email: faker.internet.email(),
       },
-    });
-    customers.push(customer);
+    })
+
+    customers.push(customer)
   }
 
   // Criar carros
-  const numberOfCars = 20;
-  
+  const numberOfCars = 20
+
   for (let i = 0; i < numberOfCars; i++) {
-    const hasCustomer = faker.datatype.boolean({ probability: 0.7 });
-    const customer = hasCustomer ? faker.helpers.arrayElement(customers) : null;
-    const willBeSold = faker.datatype.boolean({ probability: 0.5 });
-    
+    const hasCustomer = faker.datatype.boolean({ probability: 0.7 })
+    const customer = hasCustomer ? faker.helpers.arrayElement(customers) : null
+    const willBeSold = faker.datatype.boolean({ probability: 0.5 })
+
     await prisma.car.create({
       data: {
         brand: faker.vehicle.manufacturer(),
@@ -97,7 +110,7 @@ async function main() {
         color: faker.helpers.arrayElement(colors),
         year_manufacture: faker.number.int({ min: 2000, max: new Date().getFullYear() }),
         imported: faker.datatype.boolean(),
-        plates: `${faker.string.alpha(3).toUpperCase()}-${faker.string.numeric(4)}`, // Formato ABC-1234
+        plates: `${faker.string.alpha(3).toUpperCase()}-${faker.string.numeric(4)}`,
         selling_date: willBeSold ? faker.date.past() : null,
         selling_price: willBeSold
           ? faker.number.float({ min: 15000, max: 150000, precision: 0.01 })
@@ -106,15 +119,15 @@ async function main() {
         created_user_id: faker.helpers.arrayElement(users).id,
         updated_user_id: faker.helpers.arrayElement(users).id,
       },
-    });
+    })
   }
 }
 
 main()
   .catch((e) => {
-    console.error(e);
-    process.exit(1);
+    console.error(e)
+    process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect();
-  });
+    await prisma.$disconnect()
+  })
