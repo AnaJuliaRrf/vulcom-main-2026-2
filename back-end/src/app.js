@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 dotenv.config() // Carrega as variáveis de ambiente do arquivo .env
-
+import auth from './middleware/auth.js'
 
 import express, { json, urlencoded } from 'express'
 import cookieParser from 'cookie-parser'
@@ -27,6 +27,7 @@ app.use(logger('dev'))
 app.use(json())
 app.use(urlencoded({ extended: false }))
 app.use(cookieParser())
+app.use(auth)
 
 
 /*********** ROTAS DA API **************/
