@@ -1,3 +1,4 @@
+
 /*
  Este middleware intercepta as rotas e verifica
  se um token de autorização foi enviado junto com a
@@ -20,26 +21,27 @@ export default function(req, res, next) {
     }
   }
 
-  let token
-  const authHeader = req.headers['authorization']
+  // Primeiro tenta obter o token pelo cookie HttpOnly
+  let token = req.cookies?.[process.env.AUTH_COOKIE_NAME]
 
-  console.log({ authHeader })
+  // Se não encontrar, tenta pelo cabeçalho Authorization
+  if(!token) {
+    const authHeader = req.headers['authorization']
 
-  // Verifica se o cabeçalho Authorization foi enviado
-  if(!authHeader) {
-    console.error('ERRO DE AUTORIZAÇÃO: falta de cabeçalho')
-    return res.status(403).end()
+    if(authHeader) {
+      const [scheme, credentials] = authHeader.split(' ')
+
+      if(scheme === 'Bearer' && credentials) {
+        token = credentials
+      }
+    }
   }
 
-  // Extrai o token do formato Bearer TOKEN
-  const [scheme, credentials] = authHeader.split(' ')
-
-  if(scheme !== 'Bearer' || !credentials) {
-    console.error('ERRO DE AUTORIZAÇÃO: formato inválido')
+  // Verifica se existe algum token
+  if(!token) {
+    console.error('ERRO DE AUTORIZAÇÃO: token não encontrado')
     return res.status(403).end()
   }
-
-  token = credentials
 
   // Verifica se o token é válido
   jwt.verify(token, process.env.TOKEN_SECRET, (error, user) => {

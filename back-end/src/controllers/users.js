@@ -164,8 +164,7 @@ controller.login = async function(req, res) {
     })
 
     // Retorna o token e os dados do usuário sem a senha
-    res.send({ token, user: safeUser })
-  }
+  res.send({ user: safeUser })  }
   catch(error) {
     console.error(error)
     res.status(500).end()
