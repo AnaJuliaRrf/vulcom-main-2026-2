@@ -5,6 +5,9 @@ export default function Homepage() {
   const [cookies, setCookies] = React.useState([])
 
   React.useEffect(() => {
+    // Cria um cookie acessível pelo JavaScript no domínio do frontend.
+    document.cookie = 'cookie-js=Cookie acessível via JavaScript; path=/; SameSite=Lax; Secure'
+
     const data = document.cookie
       .split(';')
       .filter(cookie => cookie.trim() !== '')
